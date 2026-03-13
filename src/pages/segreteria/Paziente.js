@@ -21,7 +21,6 @@ export default function PazienteSegreteria() {
   const successTimerRef = useRef(null);
 
   const [form, setForm] = useState({ nome: '', cognome: '', email: '', telefono: '', codice_fiscale: '' });
-  // prenotazioni (future / passate)
   const [prenotazioni, setPrenotazioni] = useState([]);
   const [mediciMap, setMediciMap] = useState({});
   const [specialitaMap, setSpecialitaMap] = useState({});
@@ -69,21 +68,16 @@ export default function PazienteSegreteria() {
     if (!form.nome) fe.nome = 'Inserisci il nome';
     if (!form.cognome) fe.cognome = 'Inserisci il cognome';
 
-    // validate codice fiscale if provided
     if (form.codice_fiscale && !/^[A-Za-z0-9]{16}$/.test(form.codice_fiscale)) fe.codice_fiscale = 'CF non valido';
 
-    // validate telefono if provided
     const phoneDigits = (form.telefono || '').replace(/\D/g, '');
     if (paziente?.is_guest) {
-      // for guest, telefono is required
       if (!form.telefono) fe.telefono = 'Inserisci il telefono del guest';
       else if (phoneDigits.length < 6) fe.telefono = 'Telefono non valido';
     } else {
-      // non-guest: telefono optional but validate if provided
       if (form.telefono && phoneDigits.length < 6) fe.telefono = 'Telefono non valido';
     }
 
-    // email is editable only for guest users — validate only in that case
     if (paziente?.is_guest && form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) fe.email = 'Email non valida';
 
     setFieldErrors(fe);
@@ -104,11 +98,8 @@ export default function PazienteSegreteria() {
       if (paziente?.is_guest) payload.email = form.email || undefined;
 
       await pazientiService.update(id, payload);
-      // non effettuare redirect dopo il salvataggio; restare sulla stessa pagina
       setSuccess('Dati paziente aggiornati.');
-      // aggiornare lo state locale del paziente così la UI riflette i cambiamenti
       setPaziente((prev) => ({ ...(prev || {}), ...payload }));
-      // pulire il messaggio di successo dopo 3s
       if (successTimerRef.current) clearTimeout(successTimerRef.current);
       successTimerRef.current = setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
@@ -119,7 +110,6 @@ export default function PazienteSegreteria() {
     }
   };
 
-  // pulire eventuale timer al dismontaggio
   useEffect(() => {
     return () => {
       if (successTimerRef.current) clearTimeout(successTimerRef.current);
@@ -167,9 +157,7 @@ export default function PazienteSegreteria() {
 
   const handleMarkPaid = async (prenId) => {
     try {
-      // mark as paid via service
       await prenotazioniService.markPaid(prenId, true);
-      // refresh list
       await fetchPrenotazioni();
       swalSuccess('Prenotazione segnata come pagata.');
     } catch (err) {
@@ -178,7 +166,6 @@ export default function PazienteSegreteria() {
     }
   };
 
-  // --- Nuova prenotazione (form inline con paziente preselezionato) ---
   const [resForm, setResForm] = useState({ specialita_id: '', medico_id: '', data_prenotazione: '', ora_prenotazione: '', prestazione_richiesta_id: '' });
   const [resError, setResError] = useState('');
   const [resFieldErrors, setResFieldErrors] = useState({});
@@ -189,12 +176,10 @@ export default function PazienteSegreteria() {
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [creating, setCreating] = useState(false);
 
-  // QR dialog state
   const [qrOpen, setQrOpen] = useState(false);
   const [qrToken, setQrToken] = useState('');
   const [qrLoading, setQrLoading] = useState(false);
 
-  // load specialita for the creation form
   useEffect(() => {
     const fetch = async () => {
       try {
@@ -207,7 +192,6 @@ export default function PazienteSegreteria() {
     fetch();
   }, []);
 
-  // load medici when specialita changes for creation form
   useEffect(() => {
     if (!resForm.specialita_id) {
       setMediciFiltrati([]);
@@ -225,7 +209,6 @@ export default function PazienteSegreteria() {
     fetch();
   }, [resForm.specialita_id]);
 
-  // load prestazioni when specialita changes
   useEffect(() => {
     if (!resForm.specialita_id) {
       setPrestazioniDisponibili([]);
@@ -243,7 +226,6 @@ export default function PazienteSegreteria() {
     fetch();
   }, [resForm.specialita_id]);
 
-  // load slots when medico or date changes
   useEffect(() => {
     setResForm((prev) => ({ ...prev, ora_prenotazione: '' }));
     setSlots([]);
@@ -296,7 +278,6 @@ export default function PazienteSegreteria() {
       };
 
       await prenotazioniService.create(payload);
-      // refresh table
       await fetchPrenotazioni();
       setResForm({ specialita_id: '', medico_id: '', data_prenotazione: '', ora_prenotazione: '', prestazione_richiesta_id: '' });
       await swalSuccess('Prenotazione creata con successo.', 'Creata');
@@ -320,19 +301,16 @@ export default function PazienteSegreteria() {
   };
 
   const handleStampaQr = async (pren) => {
-    // otteniamo un token per l'accesso guest (resend o generazione)
     setQrLoading(true);
     try {
       const res = await prenotazioniService.resendGuestToken(pren.id);
       const data = (res && res.data) ? res.data : res;
-      // possibile shape: { token: 'xxx' } oppure stringa semplice
       let token = null;
       if (!data) token = null;
       else if (typeof data === 'string') token = data;
       else token = data.guest_token || null;
 
       if (!token) {
-        // if no token returned, try fetching detail
         const detail = await prenotazioniService.get(pren.id);
         const d = detail && detail.data ? detail.data : detail;
         token = d?.guest_token || d?.token || d?.token_access || null;
@@ -373,7 +351,6 @@ export default function PazienteSegreteria() {
 
     try {
       await prenotazioniService.updateStatus(prenotazioneId, { stato: PrenotazioneStatus.ANNULLATA });
-      // ricarichiamo subito le prenotazioni per mostrare il nuovo stato
       try {
         setLoadingPren(true);
         const params = { paziente_id: id, page: page + 1, page_size: rowsPerPage };
@@ -431,7 +408,6 @@ export default function PazienteSegreteria() {
           <Button variant="contained" onClick={handleSave} disabled={saving}>{saving ? 'Salvataggio...' : 'Salva'}</Button>
         </Box>
       </Paper>
-      {/* --- Tabella Prenotazioni (future / passate) --- */}
       <Paper elevation={3} sx={{ p: 3, mt: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
           <Typography variant="h6">Prenotazioni</Typography>
@@ -460,7 +436,6 @@ export default function PazienteSegreteria() {
           onStampaQr={handleStampaQr}
         />
       </Paper>
-      {/* --- Form inline per creare una nuova prenotazione per questo paziente --- */}
       <Paper elevation={3} sx={{ p: 3, mt: 3 }}>
         <Typography variant="h6" sx={{ mb: 2 }}>Crea nuova prenotazione</Typography>
 
@@ -507,7 +482,6 @@ export default function PazienteSegreteria() {
           </Grid>
         </Box>
       </Paper>
-      {/* Dialog per Foglio QR Guest */}
       <Dialog open={qrOpen} onClose={handleCloseQr} maxWidth="md" fullWidth>
         <DialogTitle>Foglio QR per il Guest</DialogTitle>
             <DialogContent>

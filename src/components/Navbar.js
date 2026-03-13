@@ -8,10 +8,8 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Definisci un array con i percorsi in cui la Navbar deve essere invisibile
   const rotteNascoste = ['/login', '/registrazione'];
 
-  // Se l'URL attuale è presente nell'array, restituisci "null" bloccando il rendering
   if (rotteNascoste.includes(location.pathname)) {
     return null;
   }
@@ -19,7 +17,6 @@ export default function Navbar() {
   return (
     <AppBar position="static" elevation={2}>
       <Toolbar>
-        {/* Logo: use full name image on desktop, compact logo on mobile */}
         <Box
           component="div"
           sx={{ flexGrow: 1, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
@@ -39,20 +36,17 @@ export default function Navbar() {
           />
         </Box>
 
-        {/* Rendering condizionale in base allo stato di autenticazione */}
         {user ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Typography
               variant="body1"
               sx={{
                 fontWeight: 500,
-                // Se l'utente è paziente nascondi il testo di benvenuto su xs (mobile)
                 display: user?.ruolo === UserRoles.PAZIENTE ? { xs: 'none', sm: 'block' } : { xs: 'block' },
               }}
             >
               Benvenuto, {user.nome} {user.cognome}
             </Typography>
-            {/* Link al profilo visibile solo per pazienti */}
             {user?.ruolo === UserRoles.PAZIENTE && (
               <Button color="inherit" variant="outlined" onClick={() => navigate('/paziente/profilo')} sx={{ borderColor: 'white' }}>
                 Il mio profilo

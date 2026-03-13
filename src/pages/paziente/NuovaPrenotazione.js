@@ -8,7 +8,6 @@ import { prenotazioniService, specialitaService, mediciService } from '../../api
 export default function NuovaPrenotazione() {
   const navigate = useNavigate();
 
-  // Stati del form
   const [formData, setFormData] = useState({
     specialita_id: '',
     medico_id: '',
@@ -27,19 +26,15 @@ export default function NuovaPrenotazione() {
     prestazione_richiesta_id: ''
   });
 
-  // Stati per i dati provenienti dal database
   const [specialitaDisponibili, setSpecialitaDisponibili] = useState([]);
   const [mediciFiltrati, setMediciFiltrati] = useState([]);
   const [prestazioniDisponibili, setPrestazioniDisponibili] = useState([]);
   const [prestazioniLoading, setPrestazioniLoading] = useState(false);
 
-  // Slots dinamici per l'orario in base a medico + data
   const [slots, setSlots] = useState([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
 
-  // Orari statici removed: ora usiamo gli slot dinamici dal servizio medici
 
-  // 1. Carica le specialità al primo avvio del componente
   useEffect(() => {
     const fetchSpecialita = async () => {
       try {
@@ -53,10 +48,8 @@ export default function NuovaPrenotazione() {
     fetchSpecialita();
   }, []);
 
-  // 2. Carica i medici ogni volta che cambia la specialità scelta
   useEffect(() => {
     const fetchMedici = async () => {
-      // Se non c'è specialità, svuota la lista medici
       if (!formData.specialita_id) {
         setMediciFiltrati([]);
         return;
@@ -70,9 +63,8 @@ export default function NuovaPrenotazione() {
       }
     };
     fetchMedici();
-  }, [formData.specialita_id]); // Questo effect scatta ogni volta che specialita_id cambia
+  }, [formData.specialita_id]);
 
-  // 2b. Carica le prestazioni quando cambia la specialità scelta
   useEffect(() => {
     const fetchPrestazioni = async () => {
       if (!formData.specialita_id) {
@@ -99,10 +91,8 @@ export default function NuovaPrenotazione() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     
-    // Se l'utente cambia specialità, resettiamo il medico scelto in precedenza
     if (name === 'specialita_id') {
       setFormData({ ...formData, specialita_id: value, medico_id: '', prestazione_richiesta_id: '' });
-      // clear related field errors
       setFieldErrors({ ...fieldErrors, specialita_id: '', medico_id: '', prestazione_richiesta_id: '' });
     } else {
       setFormData({ ...formData, [name]: value });
@@ -112,11 +102,9 @@ export default function NuovaPrenotazione() {
     }
   };
 
-  // Quando medico o data cambiano, puliamo lo slot selezionato e ricarichiamo gli slot
   const medicoIdForSlots = formData.medico_id;
   const dataForSlots = formData.data_prenotazione;
   useEffect(() => {
-    // reset selected time whenever medico or date changes
     setFormData((prev) => ({ ...prev, ora_prenotazione: '' }));
     setSlots([]);
 
@@ -126,9 +114,7 @@ export default function NuovaPrenotazione() {
       setSlotsLoading(true);
       try {
         const resp = await mediciService.getSlots(medicoIdForSlots, dataForSlots);
-        // Expect resp.data to be array of time strings
         setSlots(Array.isArray(resp.data) ? resp.data : []);
-        // clear any previous field-level error for ora_prenotazione
         setFieldErrors((fe) => ({ ...fe, ora_prenotazione: '' }));
       } catch (err) {
         console.error('Errore nel caricamento degli slot', err);
@@ -146,7 +132,6 @@ export default function NuovaPrenotazione() {
     e.preventDefault();
     setError('');
 
-    // Validate required fields and populate field-level errors
     const newFieldErrors = {};
     if (!formData.specialita_id) newFieldErrors.specialita_id = 'Seleziona la specialità';
     if (!formData.medico_id) newFieldErrors.medico_id = 'Seleziona un medico';
@@ -234,7 +219,6 @@ export default function NuovaPrenotazione() {
                 {mediciFiltrati.length > 0 ? (
                   mediciFiltrati.map((medico) => (
                     <MenuItem key={medico.id} value={medico.id}>
-                      {/* Formattiamo il nome letto dal database */}
                       Dott. {medico.nome} {medico.cognome}
                     </MenuItem>
                   ))

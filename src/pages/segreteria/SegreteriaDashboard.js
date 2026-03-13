@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Container, Typography, Grid, Alert } from '@mui/material';
 
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -18,10 +18,6 @@ export default function SegreteriaDashboard() {
     const location = useLocation();
     const [successMessage, setSuccessMessage] = useState('');
 
-    // Calendar: we want to show all bookings, so we won't pass medicoId
-    // CalendarAppointments will fetch by medicoId if provided; passing undefined will fetch nothing
-    // Instead, CalendarAppointments expects a medicoId; to show all bookings we will temporarily
-    // render it without medicoId and rely on prenotazioniService.list inside the component if supported.
 
 
     
@@ -49,13 +45,11 @@ export default function SegreteriaDashboard() {
     useEffect(() => {
         if (location && location.state && location.state.successMessage) {
             setSuccessMessage(location.state.successMessage);
-            // clear the location state so message doesn't persist on refresh/back
             navigate(location.pathname, { replace: true, state: {} });
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location]);
 
-    // auto-dismiss success message after a few seconds
     useEffect(() => {
         if (!successMessage) return undefined;
         const t = setTimeout(() => setSuccessMessage(''), 5000);

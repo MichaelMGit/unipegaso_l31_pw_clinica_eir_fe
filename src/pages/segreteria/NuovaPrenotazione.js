@@ -80,7 +80,6 @@ export default function NuovaPrenotazioneSegreteria() {
     fetch();
   }, [formData.specialita_id]);
 
-  // slots
   useEffect(() => {
     setFormData((prev) => ({ ...prev, ora_prenotazione: '' }));
     setSlots([]);
@@ -100,7 +99,6 @@ export default function NuovaPrenotazioneSegreteria() {
     fetch();
   }, [formData.medico_id, formData.data_prenotazione]);
 
-  // patient autocomplete search
   const doPatientSearch = useCallback(async (q) => {
     if (!q || q.length < 2) {
       setPatientOptions([]);
@@ -127,11 +125,9 @@ export default function NuovaPrenotazioneSegreteria() {
   const handleGuestChange = (e) => {
     const { name, value } = e.target;
     if (name === 'codice_fiscale') {
-      // keep only alphanumeric, uppercase, limit to 16 chars
       const cleaned = (value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 16);
       setGuestData({ ...guestData, [name]: cleaned });
     } else if (name === 'telefono') {
-      // allow digits, plus, space, hyphen, keep reasonable length
       const cleaned = (value || '').replace(/[^0-9+\-\s]/g, '').slice(0, 24);
       setGuestData({ ...guestData, [name]: cleaned });
     } else {
@@ -158,12 +154,9 @@ export default function NuovaPrenotazioneSegreteria() {
       if (!guestData.nome) fe.guest_nome = 'Inserisci nome guest';
       if (!guestData.cognome) fe.guest_cognome = 'Inserisci cognome guest';
       if (!guestData.telefono) fe.guest_telefono = 'Inserisci telefono guest';
-      // telefono validation: at least 6 digits
       const phoneDigits = (guestData.telefono || '').replace(/\D/g, '');
       if (guestData.telefono && phoneDigits.length < 6) fe.guest_telefono = 'Numero di telefono non valido';
-      // email validation (if provided)
       if (guestData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestData.email)) fe.guest_email = 'Email non valida';
-      // codice fiscale validation (if provided) - basic check: 16 alfanumerici
       if (guestData.codice_fiscale && !/^[A-Za-z0-9]{16}$/.test(guestData.codice_fiscale)) fe.guest_codice_fiscale = 'Codice fiscale non valido';
     }
 
@@ -180,10 +173,8 @@ export default function NuovaPrenotazioneSegreteria() {
     }
     setLoading(true);
     try {
-      // If guest mode and no selected patient, create a user first
       let pazienteId = selectedPatient ? selectedPatient.id : null;
       if (!pazienteId && guestMode) {
-        // generate simple random password
         const genPassword = () => {
           const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
           let pw = '';
@@ -204,7 +195,6 @@ export default function NuovaPrenotazioneSegreteria() {
         try {
           const regResp = await authService.register(regPayload);
           pazienteId = regResp?.data?.id || regResp?.data?.user?.id || regResp?.data?.paziente_id || regResp?.data?.paziente?.id || null;
-          // fallback: try to find by email if response didn't include id
           if (!pazienteId && regPayload.email) {
             const search = await pazientiService.list({ q: regPayload.email, page: 1, page_size: 1 });
             const items = (search.data && (search.data.items ? search.data.items : search.data)) || [];
@@ -212,7 +202,6 @@ export default function NuovaPrenotazioneSegreteria() {
           }
         } catch (regErr) {
           console.error('Errore creazione guest user', regErr);
-          // try to lookup by email if available
           if (guestData.email) {
             try {
               const search = await pazientiService.list({ q: guestData.email, page: 1, page_size: 1 });

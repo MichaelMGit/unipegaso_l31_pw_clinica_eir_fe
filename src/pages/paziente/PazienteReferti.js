@@ -16,7 +16,7 @@ export default function PazienteReferti() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const [page, setPage] = useState(0); // 0-based
+  const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
   const [downloading, setDownloading] = useState({});

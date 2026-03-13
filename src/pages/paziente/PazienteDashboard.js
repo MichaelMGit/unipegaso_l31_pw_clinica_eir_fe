@@ -60,7 +60,6 @@ export default function PazienteDashboard() {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 5, mb: 5 }}>
-      {/* Intestazione */}
       <Box sx={{ mb: 4 }}>
         {successMessage && (
           <Alert severity="success" sx={{ mb: 3 }}>
@@ -103,7 +102,6 @@ export default function PazienteDashboard() {
             </CardContent>
           </Card>
         </Grid>
-        {/* Sezione Prenotazioni */}
         <Grid item xs={12} md={6}>
           <Card elevation={3} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <CardContent sx={{ flexGrow: 1 }}>
@@ -133,7 +131,6 @@ export default function PazienteDashboard() {
           </Card>
         </Grid>
 
-        {/* Sezione Referti */}
         <Grid item xs={12} md={6}>
           <Card elevation={3} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <CardContent sx={{ flexGrow: 1 }}>

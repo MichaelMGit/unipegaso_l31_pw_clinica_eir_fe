@@ -1,7 +1,6 @@
 import client from '../client';
 import { endpoints } from '../endpoints';
 
-// Create a referto for a visita (API uses `visite/{visita_id}/referti`)
 const create = (visitaId, payload) =>
   client.post(endpoints.visite.referti.create(visitaId), payload);
 

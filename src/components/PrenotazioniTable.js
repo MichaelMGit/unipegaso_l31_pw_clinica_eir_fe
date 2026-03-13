@@ -12,18 +12,18 @@ export default function PrenotazioniTable({
   tabValue = 0,
   mediciMap = {},
   specialitaMap = {},
-  onAnnulla, // function(prenId)
-  onApri, // function(pren)
-  onStampaQr, // function(pren)
-  onMarkPaid, // function(prenId)
+  onAnnulla,
+  onApri,
+  onStampaQr,
+  onMarkPaid,
   showQrButton = false,
   showPaidColumn = false,
   canMarkPaid = false,
   page = 0,
   rowsPerPage = 10,
   totalCount = 0,
-  onPageChange, // (e, newPage)
-  onRowsPerPageChange // (e)
+  onPageChange,
+  onRowsPerPageChange
 }) {
   const theme = useTheme();
   const isSmall = useMediaQuery(theme.breakpoints.down('sm'));
@@ -138,7 +138,6 @@ export default function PrenotazioniTable({
                   </TableCell>
                   {showPaidColumn && (
                     <TableCell>
-                      {/* determine paid flag from common property names */}
                       {(() => {
                         const paid = pren.pagato ?? false;
                         return paid ? (
@@ -156,14 +155,11 @@ export default function PrenotazioniTable({
                     {onApri && (
                       <Button size="small" onClick={() => onApri(pren)} sx={{ ml: 1 }}>Apri</Button>
                     )}
-                    {/* allow segreteria to mark as paid when completed */}
                     {showPaidColumn && pren.stato === PrenotazioneStatus.COMPLETATA && canMarkPaid && onMarkPaid && (
-                      // only show action if not already paid
                       !pren.pagato && (
                         <Button size="small" variant="contained" color="primary" onClick={() => onMarkPaid(pren.id)} sx={{ ml: 1 }}>Segna pagata</Button>
                       )
                     )}
-                    {/* Stampa QR per guest su prenotazioni completate */}
                     {pren.stato === PrenotazioneStatus.COMPLETATA && showQrButton && onStampaQr && (
                       <IconButton size="small" onClick={() => onStampaQr(pren)} sx={{ ml: 1 }} aria-label="Stampa QR">
                         <QrCodeIcon fontSize="small" />

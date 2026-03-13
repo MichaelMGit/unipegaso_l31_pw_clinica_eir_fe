@@ -1,4 +1,3 @@
-// Centralizza i ruoli utente e helper per le rotte di default
 export const UserRoles = {
   MEDICO: 'medico',
   PAZIENTE: 'paziente',

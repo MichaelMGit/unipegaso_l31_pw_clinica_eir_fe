@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { Box, Button, CircularProgress } from '@mui/material';
 import { refertiService } from '../api/services';
 
-// Component that renders a referto title as a clickable element which triggers
-// download using `refertiService.download`. Reusable across pages.
 export default function RefertoDownload({ referto, onError }) {
   const [loading, setLoading] = useState(false);
 
@@ -14,7 +12,6 @@ export default function RefertoDownload({ referto, onError }) {
 
     try {
       setLoading(true);
-      // If guest token/cf are present (guest flow), include them as params so backend can authorize
       const guestToken = localStorage.getItem('guest_token');
       const guestCf = localStorage.getItem('guest_cf');
       const params = {};
@@ -25,7 +22,6 @@ export default function RefertoDownload({ referto, onError }) {
       const blob = res.data || res;
       const url = window.URL.createObjectURL(blob);
 
-      // extension: prefer the API-provided `formato` (exact extension), fallback to mime-type
       let ext = '';
       if (referto.formato) {
         ext = String(referto.formato).replace(/[^a-z0-9]/gi, '').toLowerCase();

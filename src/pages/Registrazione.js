@@ -21,26 +21,20 @@ export default function Registrazione() {
         telefono: '',
     });
 
-    // Stati per la compliance GDPR
     const [accettaTermini, setAccettaTermini] = useState(false);
     const [accettaPrivacy, setAccettaPrivacy] = useState(false);
     const [healthDataAccepted, setHealthDataAccepted] = useState(false);
-    // Stati per aprire i dialog delle policy
     const [openTermini, setOpenTermini] = useState(false);
     const [openPrivacy, setOpenPrivacy] = useState(false);
 
-    // Errori per i checkbox
     const [accettaTerminiError, setAccettaTerminiError] = useState('');
     const [accettaPrivacyError, setAccettaPrivacyError] = useState('');
     const [healthDataAcceptedError, setHealthDataAcceptedError] = useState('');
 
-    // Stati per UI e feedback
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
-    // Stato per evidenziare l'intero form quando ci sono errori
     const [formError, setFormError] = useState(false);
-    // Errori specifici dei campi
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [passwordConfirmError, setPasswordConfirmError] = useState('');
@@ -58,7 +52,6 @@ export default function Registrazione() {
         e.preventDefault();
         setError('');
         setSuccess('');
-        // reset field errors
         setEmailError('');
         setPasswordError('');
         setPasswordConfirmError('');
@@ -71,8 +64,7 @@ export default function Registrazione() {
         setHealthDataAcceptedError('');
         setFormError(false);
 
-        // Validazione Email / Password lato frontend
-        let valid = true; // validità parziale per email/password
+        let valid = true;
         const emailValue = formData.email ? formData.email.trim() : '';
         if (!emailValue) {
             setEmailError('Email obbligatoria');
@@ -98,7 +90,6 @@ export default function Registrazione() {
             valid = false;
         }
 
-        // Validazione anagrafica con errori campo-specifici
         let anagraficaValid = true;
         if (!formData.nome.trim()) {
             setNomeError('Nome obbligatorio');
@@ -116,9 +107,8 @@ export default function Registrazione() {
             anagraficaValid = false;
         }
 
-        // Telefono: ora richiesto dalle APIs
         const phoneRaw = formData.telefono ? formData.telefono.trim() : '';
-        const phoneAllowed = /^[+\d\s\-().]+$/; // consentiamo +, cifre, spazi, -, (), .
+        const phoneAllowed = /^[+\d\s\-().]+$/;
         if (!phoneRaw) {
             setTelefonoError('Numero di telefono obbligatorio');
             anagraficaValid = false;
@@ -133,7 +123,6 @@ export default function Registrazione() {
             }
         }
 
-        // Validazione Legale (GDPR) lato frontend - errori campo-specifici
         let gdprValid = true;
         if (!accettaTermini) {
             setAccettaTerminiError('Devi accettare i Termini di Servizio');
@@ -148,10 +137,8 @@ export default function Registrazione() {
             gdprValid = false;
         }
 
-        // Variabile globale che combina tutte le validazioni locali
         const overallValid = valid && anagraficaValid && gdprValid;
         if (!overallValid) {
-            // evidenzia l'intero form e ferma l'invio
             setFormError(true);
             return;
         }
@@ -159,7 +146,6 @@ export default function Registrazione() {
         setLoading(true);
 
         try {
-            // Invia i dati al backend (escludiamo password_confirm dal payload)
             const payload = {
                 nome: formData.nome,
                 cognome: formData.cognome,
@@ -178,7 +164,6 @@ export default function Registrazione() {
         } catch (err) {
             console.error(err);
             if (err.response && err.response.data && err.response.data.detail) {
-                // Mostra l'errore esatto del backend (es. "Email già in uso")
                 setError(err.response.data.detail);
             } else {
                 setError('Errore di connessione al server. Riprova più tardi.');
@@ -238,7 +223,6 @@ export default function Registrazione() {
                                     inputProps={{ maxLength: 16, style: { textTransform: 'uppercase' } }}
                                     value={formData.codice_fiscale}
                                     onChange={(e) => {
-                                        // Forza il maiuscolo come standard italiano
                                         e.target.value = e.target.value.toUpperCase();
                                         handleChange(e);
                                     }}
@@ -258,7 +242,6 @@ export default function Registrazione() {
                                     autoComplete="tel"
                                     value={formData.telefono}
                                     onChange={(e) => {
-                                        // Sanitize input: allow only + digits, spaces, -, (), .
                                         const sanitized = e.target.value.replace(/[^+\d\s\-().]/g, '');
                                         e.target.value = sanitized;
                                         handleChange(e);
@@ -267,7 +250,6 @@ export default function Registrazione() {
                                         const paste = (e.clipboardData || window.clipboardData).getData('text');
                                         const sanitized = paste.replace(/[^+\d\s\-().]/g, '');
                                         e.preventDefault();
-                                        // Insert sanitized text at cursor
                                         const input = e.target;
                                         const start = input.selectionStart || 0;
                                         const end = input.selectionEnd || 0;
@@ -325,7 +307,6 @@ export default function Registrazione() {
                             </Grid>
                         </Grid>
 
-                        {/* Sezione Consensi (GDPR) */}
                         <Box sx={{ mt: 3, p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
                             <Typography variant="body2" color="textSecondary" gutterBottom>
                                 Consensi Obbligatori
@@ -384,7 +365,6 @@ export default function Registrazione() {
                 </Paper>
             </Box>
 
-            {/* Dialog separati per Terms e Privacy: componenti riutilizzabili */}
             <TermsDialog open={openTermini} onClose={() => setOpenTermini(false)} />
             <PrivacyDialog open={openPrivacy} onClose={() => setOpenPrivacy(false)} />
 

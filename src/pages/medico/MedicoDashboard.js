@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Container, Typography, Grid, Card, CardContent, Button, CircularProgress, Alert, Chip } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { prenotazioniService } from '../../api/services';
@@ -31,18 +31,15 @@ export default function MedicoDashboard() {
                 setLoading(true);
                 const m = user;
                 if (!m) {
-                    // se non abbiamo user (improbabile su rotte protette), mostriamo errore
                     if (mounted) setError('Utente non autenticato.');
                     return;
                 }
                 setMedico(m);
 
-                // Carichiamo le prossime 3 prenotazioni per questo medico usando il servizio `prenotazioni`
                 const today = new Date().toISOString().slice(0,10);
                 const prenRes = await prenotazioniService.list({ medico_id: m.id, data_da: today, stato: PrenotazioneStatus.CONFERMATA, page: 1, page_size: 3 });
 
                 if (!mounted) return;
-                        // Supporto nuova struttura: l'API ora ritorna oggetti annidati in `items`
                         const items = prenRes.data.items || [];
                         setUpcoming(items || []);
             } catch (err) {

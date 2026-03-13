@@ -41,7 +41,6 @@ export default function ProfiloPaziente() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // clear field-level error when user edits
     setFieldErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
@@ -52,7 +51,6 @@ export default function ProfiloPaziente() {
   };
 
   const validate = () => {
-    // clear previous errors
     setError('');
     const errs = {};
 
@@ -72,7 +70,6 @@ export default function ProfiloPaziente() {
       errs.telefono = 'Inserisci un numero di telefono valido';
     }
 
-    // password optional validation
     if (passwords.nuovaPassword || passwords.confermaPassword) {
       if (passwords.nuovaPassword.length < 6) {
         errs.nuovaPassword = 'La nuova password deve avere almeno 6 caratteri';
@@ -100,15 +97,12 @@ export default function ProfiloPaziente() {
         cognome: formData.cognome.trim(),
         telefono: formData.telefono.trim(),
       };
-      // include password only if user provided a new one
       if (passwords.nuovaPassword) {
         payload.password = passwords.nuovaPassword;
       }
       await authService.update(payload);
-      // refresh global user
       await refreshUser();
       setSuccess('Profilo aggiornato con successo');
-      // clear password fields on success
       setPasswords({ nuovaPassword: '', confermaPassword: '' });
     } catch (err) {
       console.error('Errore aggiornamento profilo', err);
@@ -179,7 +173,6 @@ export default function ProfiloPaziente() {
             sx={{ mb: 2 }}
           />
 
-          {/* Box cambio password */}
           <Paper variant="outlined" sx={{ p: 2, mb: 2, backgroundColor: 'transparent' }}>
             <Typography variant="subtitle1" sx={{ mb: 1 }}>Cambio password (opzionale)</Typography>
             <TextField

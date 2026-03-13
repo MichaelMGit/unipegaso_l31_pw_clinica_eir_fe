@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 
-// Importiamo il nostro Context
 import { AuthProvider } from './contexts/AuthContext';
 import UserRoles from './constants/userRoles';
 
@@ -26,10 +25,8 @@ import AmministratoreDashboard from './pages/amministratore/AmministratoreDashbo
 import VisitaGuest from './pages/VisitaGuest';
 import AccessoGuest from './pages/AccessoGuest';
 
-// (SegreteriaDashboard è un componente reale in pages/segreteria)
 
 
-// --- COMPONENTE PRINCIPALE APP ---
 function App() {
   return (
     <AuthProvider>

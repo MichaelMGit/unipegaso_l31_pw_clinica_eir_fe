@@ -11,7 +11,6 @@ import PrenotazioniTable from '../../components/PrenotazioniTable';
 
 export default function StoricoPrenotazioni() {
     const navigate = useNavigate();
-    // component handles responsive rendering internally
 
     const [prenotazioni, setPrenotazioni] = useState([]);
     const [mediciMap, setMediciMap] = useState({});
@@ -32,10 +31,8 @@ export default function StoricoPrenotazioni() {
         try {
             setLoading(true);
 
-            // Decidiamo quale filtro inviare a FastAPI in base alla Tab selezionata
             const periodo = tabValue === 0 ? 'future' : 'passate';
 
-                // Build params using new API: data_da / data_a
                 const params = { page: page + 1, page_size: rowsPerPage };
                 const today = new Date().toISOString().slice(0,10);
                 if (periodo === 'future') params.data_da = today;
@@ -57,7 +54,6 @@ export default function StoricoPrenotazioni() {
             (specialitaRes.data || []).forEach(s => s_mappa[s.id] = s.nome);
             setSpecialitaMap(s_mappa);
 
-            // Normalize items to support new API shape { total, items: [...] }
             const rawItems = prenotazioniRes.data.items || [];
             setPrenotazioni(rawItems);
             setTotalCount(prenotazioniRes.data.total || 0);
@@ -68,16 +64,15 @@ export default function StoricoPrenotazioni() {
         } finally {
             setLoading(false);
         }
-    }, [page, rowsPerPage, tabValue]); // Riesegue anche quando cambia tabValue
+    }, [page, rowsPerPage, tabValue]);
 
     useEffect(() => {
         fetchData();
     }, [fetchData]);
 
-    // Gestione del cambio Tab
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
-        setPage(0); // Rimettiamo la pagina a 0 ogni volta che cambiamo scheda
+        setPage(0);
     };
 
     const handleChangePage = (event, newPage) => {
@@ -123,7 +118,6 @@ export default function StoricoPrenotazioni() {
             {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
             <Paper elevation={3}>
-                {/* --- LE TABS (SCHEDE) --- */}
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <Tabs value={tabValue} onChange={handleTabChange} aria-label="tabs prenotazioni">
                         <Tab label="Visite Future" sx={{ fontWeight: 'bold' }} />
@@ -147,7 +141,6 @@ export default function StoricoPrenotazioni() {
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
 
-                {/* pagination rendered inside PrenotazioniTable */}
             </Paper>
         </Container>
     );

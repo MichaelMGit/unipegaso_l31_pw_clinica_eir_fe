@@ -1,4 +1,3 @@
-// Centralized backend endpoints
 export const endpoints = {
   auth: {
     login: '/api/auth/login',
@@ -36,7 +35,6 @@ export const endpoints = {
     resendGuestToken: (id) => `/api/prenotazioni/${id}/resend-guest-token`,
     guest: (id) => `/api/prenotazioni/${id}/guest`,
     pagato: (id) => `/api/prenotazioni/${id}/pagamento`,
-    // note: referti now belong to `visite` resource in the updated API
   },
   visite: {
     list: '/api/visite',
@@ -47,7 +45,6 @@ export const endpoints = {
     },
     relazione: (visitaId) => `/api/visite/${visitaId}/relazione`,
     relazionePrint: (visitaId) => `/api/visite/${visitaId}/relazione/print`,
-    // endpoint pubblico per accesso guest tramite token + codice fiscale
     guest: () => `/api/visite/guest`,
   },
   prestazioni: {
@@ -81,5 +78,4 @@ export const endpoints = {
     attachments: (refertoId) => `/api/referti/${refertoId}/attachments`,
     download: (refertoId) => `/api/referti/${refertoId}/download`,
   },
-  // add more grouped endpoints here if needed
 };

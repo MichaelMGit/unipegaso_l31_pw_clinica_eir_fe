@@ -14,7 +14,6 @@ export default function AccessoGuest() {
 
   const navigate = useNavigate();
 
-  // Se manca il token nella URL, reindirizza alla login (l'utente guest non deve vedere il token)
   if (!tokenFromUrl) {
     return <Navigate to="/login" replace />;
   }
@@ -36,27 +35,22 @@ export default function AccessoGuest() {
 
     try {
   setLoading(true);
-  // POST to the new /api/visite/guest endpoint via the visite service
   const payload = { token, codice_fiscale: codiceFiscale.trim().toUpperCase() };
   const resp = await visiteService.guestAccess(payload);
 
-  // Resp format is intentionally flexible: may contain download_url, referto, message
       const data = resp.data || { message: 'Accesso completato.' };
       setResult(data);
 
-      // Se l'autenticazione è andata a buon fine (presenza di visita), memorizziamo token + CF e navighiamo
       if (data.visita && data.visita.id) {
         try {
-          // memorizza per sessione (persistente) in localStorage
           localStorage.setItem('guest_token', token);
           localStorage.setItem('guest_cf', payload.codice_fiscale);
           localStorage.setItem('guest_visita', JSON.stringify(data.visita));
           localStorage.setItem('guest_referti', JSON.stringify(data.referti || []));
         } catch (e) {
-          // ignore storage errors
+          
         }
 
-        // navighiamo alla pagina visita-guest
         navigate(`/visita-guest/${data.visita.id}`, { replace: true });
         return;
       }
@@ -106,21 +100,18 @@ export default function AccessoGuest() {
           <Box sx={{ mt: 3 }}>
             <Alert severity="success">Accesso effettuato con successo.</Alert>
 
-            {/* Se il backend ha restituito un link per il download, mostriamolo */}
             {result.download_url && (
               <Typography sx={{ mt: 2 }}>
                 Puoi scaricare il documento qui: <Link href={result.download_url} target="_blank" rel="noreferrer">Scarica referto</Link>
               </Typography>
             )}
 
-            {/* Se il backend ha restituito un oggetto 'referto' con id, offriamo un link convenzionale */}
             {result.referto_id && (
               <Typography sx={{ mt: 2 }}>
                 Referto trovato: <Link href={`/referti/${result.referto_id}`} target="_blank">Apri referto</Link>
               </Typography>
             )}
 
-            {/* Fallback: mostra l'oggetto restituito */}
             {!result.download_url && !result.referto_id && (
               <Typography variant="body2" sx={{ mt: 2, whiteSpace: 'pre-wrap' }}>{JSON.stringify(result, null, 2)}</Typography>
             )}

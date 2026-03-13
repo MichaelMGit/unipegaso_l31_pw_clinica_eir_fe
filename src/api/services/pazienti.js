@@ -3,7 +3,6 @@ import { endpoints } from '../endpoints';
 
 const list = (params) => client.get(endpoints.pazienti.list, { params });
 const get = (pazienteId) => client.get(endpoints.pazienti.detail(pazienteId));
-// update(pazienteId, data) -> PATCH /api/pazienti/:id
 const update = (pazienteId, data) => client.patch(endpoints.pazienti.update(pazienteId), data);
 const getPrenotazioni = (params) => client.get(endpoints.prenotazioni.list, { params });
 

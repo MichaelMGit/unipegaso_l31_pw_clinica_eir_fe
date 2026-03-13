@@ -13,7 +13,6 @@ const login = (email, password) => {
 };
 
 const refresh = (refreshToken) => {
-  // use axios directly to avoid interceptor loops
   return axios.post(endpoints.auth.refresh, { refresh_token: refreshToken });
 };
 
@@ -23,7 +22,6 @@ const logout = (refreshToken) => client.post(endpoints.auth.logout, { refresh_to
 
 const register = (payload) => client.post(endpoints.auth.register, payload);
 
-// Aggiorna i dati del profilo dell'utente con PATCH /api/auth/me
 const update = (payload) => client.patch(endpoints.auth.me, payload);
 
 const authService = {

@@ -14,14 +14,12 @@ export default function VisitaGuest() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Leggiamo i dati memorizzati in localStorage dalla pagina di accesso
     const token = localStorage.getItem('guest_token');
     const cf = localStorage.getItem('guest_cf');
     const visitaRaw = localStorage.getItem('guest_visita');
     const refertiRaw = localStorage.getItem('guest_referti');
 
     if (!token || !cf || !visitaRaw) {
-      // niente da mostrare -> ritorna alla pagina di accesso
       navigate('/accesso-guest', { replace: true });
       return;
     }
@@ -29,9 +27,8 @@ export default function VisitaGuest() {
     try {
       const v = JSON.parse(visitaRaw);
       const r = refertiRaw ? JSON.parse(refertiRaw) : [];
-      // optional: verify id matches
       if (id && String(v.id) !== String(id)) {
-        // mismatch: prefer mostrare quello memorizzato
+        
       }
       setVisita(v);
       setReferti(r);
@@ -48,7 +45,7 @@ export default function VisitaGuest() {
       localStorage.removeItem('guest_visita');
       localStorage.removeItem('guest_referti');
     } catch (e) {
-      // noop
+      
     }
     navigate('/login', { replace: true });
   };
@@ -60,18 +57,15 @@ export default function VisitaGuest() {
       const visitaId = visita && (visita.id || visita.visita_id);
       if (!visitaId) throw new Error('Nessuna visita associata per la stampa.');
 
-      // Recupera token e codice_fiscale dal localStorage e passali come params
       const token = localStorage.getItem('guest_token');
       const codice_fiscale = localStorage.getItem('guest_cf');
 
       const res = await visiteService.printRelazione(visitaId, { token, codice_fiscale });
-      // res.data is a blob when using axios client
       const blob = res.data || res;
       const url = window.URL.createObjectURL(blob);
 
       const newTab = window.open(url, '_blank');
       if (!newTab) {
-        // popup bloccato: fallback al download forzato
         const a = document.createElement('a');
         a.href = url;
         a.download = `relazione_visita_${visitaId}.pdf`;
@@ -91,7 +85,6 @@ export default function VisitaGuest() {
 
   if (!visita) return null;
 
-  // token and cf are stored in localStorage if needed for downloads; RefertoItem/RefertoDownload handle downloads
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
@@ -132,7 +125,6 @@ export default function VisitaGuest() {
           ) : (
             <List>
               {referti.map((r, idx) => (
-                // Reuse RefertoItem for consistent rendering and download behavior
                 <RefertoItem key={`${r.referto_id ?? r.prenotazione_id ?? r.id ?? idx}-${idx}`} referto={r} onError={setError} />
               ))}
             </List>

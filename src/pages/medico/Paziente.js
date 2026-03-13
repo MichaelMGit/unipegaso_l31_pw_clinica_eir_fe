@@ -8,7 +8,6 @@ import PrenotazioniTable from '../../components/PrenotazioniTable';
 import { pazientiService, prenotazioniService, specialitaService } from '../../api/services';
 import RefertoItem from '../../components/RefertoItem';
 import { useAuth } from '../../contexts/AuthContext';
-// prenotazioneStatus helpers used inside PrenotazioniTable
 
 export default function Paziente() {
   const { id: pazienteId } = useParams();
@@ -22,12 +21,10 @@ export default function Paziente() {
   const [loadingReferti, setLoadingReferti] = useState(true);
   const [loadingPren, setLoadingPren] = useState(true);
   const [specialitaMap, setSpecialitaMap] = useState({});
-  // pagination for referti
   const [refertiPage, setRefertiPage] = useState(0);
   const [refertiRowsPerPage, setRefertiRowsPerPage] = useState(3);
   const [refertiTotalCount, setRefertiTotalCount] = useState(0);
-  // pagination + tabs for prenotazioni
-  const [tabValue, setTabValue] = useState(0); // 0 = future, 1 = past
+  const [tabValue, setTabValue] = useState(0);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
@@ -50,7 +47,6 @@ export default function Paziente() {
     const fetchAll = async () => {
       setLoading(true);
       try {
-        // patient details
         const pRes = await pazientiService.get(pazienteId);
         setPaziente(pRes.data || pRes);
       } catch (err) {
@@ -105,7 +101,6 @@ export default function Paziente() {
     if (pazienteId) fetchPrenotazioni();
   }, [pazienteId, user, tabValue, page, rowsPerPage]);
 
-  // handlers for pagination and tabs
   const handleRefertiPageChange = (event, newPage) => {
     setRefertiPage(newPage);
   };
@@ -126,7 +121,6 @@ export default function Paziente() {
     setPage(0);
   };
 
-  // time formatting handled by PrenotazioniTable
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 6 }}>

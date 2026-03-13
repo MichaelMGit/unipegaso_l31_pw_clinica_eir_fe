@@ -79,7 +79,6 @@ const AmministratoreDashboard = () => {
     fetchTrend();
     fetchTopSpecialita();
     fetchRevenue();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchOverview = async () => {
@@ -131,7 +130,6 @@ const AmministratoreDashboard = () => {
   };
   
 
-  // helpers to build chart data
   const buildTrendChart = () => {
     const labels = trend.map((it) => it.data || it.day || it.label || it.x);
     const data = trend.map((it) => it.count ?? 0);
@@ -194,7 +192,6 @@ const AmministratoreDashboard = () => {
           </Grid>
         ) : overview ? (
           <>
-            {/* Top row: Utenti totali, Utenti guest, Nuovi utenti (ultimo mese) */}
             <Grid container item xs={12} spacing={2} sx={{ mb: 2 }}>
               <Grid item xs={12} md={2}>
                 <KpiCard title="Utenti totali" value={overview.total_users} icon={<PeopleIcon />} color="#1976d2" />
@@ -221,7 +218,6 @@ const AmministratoreDashboard = () => {
               </Grid>
             </Grid>
 
-            {/* Totals row: mostra vari totali subito sotto i 3 KPI */}
             <Grid container item xs={12} spacing={2} sx={{ mb: 2 }}>
               <Grid item xs={12} md={2}>
                 <KpiCard title="Prenotazioni confermate" value={overview.prenotazioni_by_stato.confermata} icon={<CheckCircleIcon />} color="#0288d1" />
@@ -255,11 +251,8 @@ const AmministratoreDashboard = () => {
         )}
       </Grid>
 
-      {/* Filters now embedded in each chart card header */}
 
-      {/* Charts */}
       <Grid container spacing={2}>
-        {/* Smaller, styled chart cards: use md=4 to make them more compact */}
         <Grid item xs={12} md={4}>
           <Paper sx={{ p: 2, boxShadow: 3, borderRadius: 2 }}>
             <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: { xs: 'flex-start', md: 'center' }, mb: 1, gap: 1, justifyContent: 'space-between' }}>

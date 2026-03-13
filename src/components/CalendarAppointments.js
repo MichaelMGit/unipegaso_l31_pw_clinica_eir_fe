@@ -29,18 +29,14 @@ export default function CalendarAppointments({ medicoId, title, sx, showDoctorFi
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const calendarRef = useRef(null);
-  // ref to avoid refetching the same month repeatedly (prevents infinite reload loop)
   const lastFetchedMonthRef = useRef(null);
-  // track in-flight fetches to prevent concurrent duplicate requests for the same key
   const inFlightFetches = useRef(new Set());
   const navigate = useNavigate();
 
   const fetchForMonth = async (visibleDate) => {
     if (!visibleDate) return;
     const monthKey = `${medicoId || 'all'}-${visibleDate.getFullYear()}-${visibleDate.getMonth()}`;
-    // skip if we've already fetched this month for the current medico
     if (lastFetchedMonthRef.current === monthKey) return;
-    // skip if a fetch for the same key is already in progress
     if (inFlightFetches.current.has(monthKey)) return;
     inFlightFetches.current.add(monthKey);
     setLoading(true);
@@ -49,25 +45,20 @@ export default function CalendarAppointments({ medicoId, title, sx, showDoctorFi
       const monthEnd = endOfMonth(visibleDate);
       const data_da = monthStart.toISOString().slice(0, 10);
       const data_a = monthEnd.toISOString().slice(0, 10);
-      // if medicoId is provided filter by medico, otherwise fetch all prenotazioni
       const params = { data_da, data_a, page: 1, page_size: 200 };
       if (medicoId) params.medico_id = medicoId;
       if (selectedPatientId) params.paziente_id = selectedPatientId;
       const res = await prenotazioniService.list(params);
       const data = res.data.items;
-      // map to FullCalendar events
       const ev = (Array.isArray(data) ? data : []).map((a) => {
         const titleTime = (a.orario_inizio || '').substring(0, 5);
-        // show patient name if available; do NOT show numeric id as fallback
         const patient = a.paziente ? `${a.paziente.nome || ''} ${a.paziente.cognome || ''}`.trim() : '';
         return {
           id: String(a.visita_id),
-          // title should contain only time and patient name (no raw id)
           title: `${titleTime} ${patient}`.trim(),
           start: a.data_visita ? `${a.data_visita}T${(a.orario_inizio || '').slice(0, 8)}` : a.data_visita,
           allDay: false,
           extendedProps: { raw: a },
-          // add a class for completed bookings so we can style them as gray
           classNames: (a.stato === PrenotazioneStatus.COMPLETATA) ? ['fc-event-completed'] : [],
         };
       });
@@ -103,7 +94,7 @@ export default function CalendarAppointments({ medicoId, title, sx, showDoctorFi
 
   useEffect(() => {
     const q = (patientQuery || '').trim();
-    if (selectedPatientLabel) return; // when a patient is selected we don't search
+    if (selectedPatientLabel) return;
     if (q.length < 3) {
       setPatientResults([]);
       return;
@@ -113,22 +104,18 @@ export default function CalendarAppointments({ medicoId, title, sx, showDoctorFi
   }, [patientQuery, selectedPatientLabel]);
 
   useEffect(() => {
-    // when medicoId changes, allow fetching again and force an initial fetch
     lastFetchedMonthRef.current = null;
     const cal = calendarRef.current;
     const viewDate = cal ? cal.getApi().getDate() : new Date();
-    // force fetch by directly calling fetchForMonth
     fetchForMonth(viewDate);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [medicoId]);
 
   useEffect(() => {
-    // when selectedPatientId changes, refetch current month
     lastFetchedMonthRef.current = null;
     const cal = calendarRef.current;
     const viewDate = cal ? cal.getApi().getDate() : new Date();
     fetchForMonth(viewDate);
-    // also sync selectedPatient state when parent clears selection
     if (!selectedPatientId) {
       setSelectedPatient(null);
       setSelectedPatientLabel('');
@@ -136,11 +123,9 @@ export default function CalendarAppointments({ medicoId, title, sx, showDoctorFi
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPatientId]);
 
-  // Italian month names, first letter capitalized
   const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
-  // generate a small year range for quick selection
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 6 }, (_, i) => currentYear - 2 + i); // currentYear-2 ... currentYear+3
+  const years = Array.from({ length: 6 }, (_, i) => currentYear - 2 + i);
 
   const handleMonthChange = (ev) => {
     const m = Number(ev.target.value);
@@ -148,7 +133,6 @@ export default function CalendarAppointments({ medicoId, title, sx, showDoctorFi
     const cal = calendarRef.current;
     if (cal) {
       const api = cal.getApi();
-      // reset last fetched month so datesSet will trigger a fetch
       lastFetchedMonthRef.current = null;
       api.gotoDate(new Date(selectedYear, m, 1));
     }
@@ -167,7 +151,6 @@ export default function CalendarAppointments({ medicoId, title, sx, showDoctorFi
 
 
 
-  // If parent doesn't provide sx, use a fixed tall height so calendar isn't clipped
   const cardSx = sx ? { ...sx } : { height: 'calc(100vh - 140px)' };
 
   return (
@@ -175,7 +158,6 @@ export default function CalendarAppointments({ medicoId, title, sx, showDoctorFi
       <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
         {title && <Typography variant="h6" gutterBottom>{title}</Typography>}
         <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center', flexWrap: { xs: 'wrap', md: 'nowrap' } }}>
-          {/* Doctor filter placed inside calendar card (optional) */}
           {showDoctorFilter && (
             <>
               <FormControl size="small" sx={{ minWidth: 220 }}>
@@ -196,7 +178,6 @@ export default function CalendarAppointments({ medicoId, title, sx, showDoctorFi
             </>
           )}
 
-          {/* Patient filter (search + select) */}
           {showPatientFilter && (
             <Autocomplete
               size="small"
@@ -245,7 +226,6 @@ export default function CalendarAppointments({ medicoId, title, sx, showDoctorFi
             />
           )}
 
-          {/* existing month/year selectors */}
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             <FormControl size="small" sx={{ minWidth: 140 }}>
               <InputLabel id="month-select-label">Mese</InputLabel>
@@ -287,13 +267,8 @@ export default function CalendarAppointments({ medicoId, title, sx, showDoctorFi
             headerToolbar={{ left: 'prev,next today', center: 'title', right: '' }}
             height="100%"
             datesSet={(arg) => {
-              // arg.start is the first visible date of the current view and may belong to the
-              // previous month (e.g. month view shows last days of previous month). Use the
-              // calendar API's current date which is centered in the active view to derive
-              // the correct month to fetch.
               const cal = calendarRef.current;
               const visible = cal ? cal.getApi().getDate() : new Date(arg.start);
-              // sync selects with visible date
               setSelectedMonth(visible.getMonth());
               setSelectedYear(visible.getFullYear());
               fetchForMonth(visible);

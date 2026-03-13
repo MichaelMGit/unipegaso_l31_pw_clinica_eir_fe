@@ -6,7 +6,7 @@ import RefertoItem from '../../components/RefertoItem';
 import { formatStatusLabel } from '../../constants/prenotazioneStatus';
 
 export default function PazienteVisita() {
-  const { id } = useParams(); // prenotazione id or visita id depending on routing
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const [pren, setPren] = useState(null);
@@ -24,7 +24,6 @@ export default function PazienteVisita() {
       const res = await prenotazioniService.get(id);
       const raw = res.data && (res.data.items ? res.data.items : res.data);
       setPren(raw);
-      // Immediately try to fetch referti for the fetched prenotazione to avoid timing issues
       (async () => {
         try {
           let visitaId = raw?.visita_id || null;
@@ -34,20 +33,18 @@ export default function PazienteVisita() {
               const vdata = vres.data.items;
               if (Array.isArray(vdata) && vdata.length > 0) visitaId = vdata[0].id;
             } catch (e) {
-              // ignore
+              
             }
           }
           if (visitaId) {
-            // fetch visita details (read-only for patient)
             try {
               const vres = await visiteService.get(visitaId);
               const vdata = vres.data;
               setRelazioneClinica(vdata?.relazione_clinica || '');
             } catch (e) {
-              // ignore
+
             }
             setRefertiLoading(true);
-            // fetch all referti for the visita (no pagination on this page)
             const r = await visiteService.getReferti(visitaId);
             const items = r.data || [];
             setReferti(items || []);
@@ -68,7 +65,6 @@ export default function PazienteVisita() {
 
   useEffect(() => { fetchPren(); }, [fetchPren]);
 
-  // helper to fetch referti for a given visita id (page is 1-based)
   const fetchRefertiForVisita = React.useCallback(async (visitaId) => {
     try {
       setRefertiLoading(true);
@@ -79,8 +75,6 @@ export default function PazienteVisita() {
       const r = await visiteService.getReferti(visitaId);
       const items = r.data.items || [];
       setReferti(items || []);
-      // no pagination: set total to items length for compatibility
-      // (we removed refertiTotal state used only for pagination visibility)
     } catch (err) {
       console.error('Errore caricamento referti', err);
       setReferti([]);
@@ -90,7 +84,6 @@ export default function PazienteVisita() {
   }, []);
 
   useEffect(() => {
-    // fetch referti when pren becomes available (no pagination)
     const doFetch = async () => {
       if (!pren) return;
       let visitaId = pren.visita_id || null;
@@ -100,7 +93,7 @@ export default function PazienteVisita() {
           const vdata = vres.data;
           if (Array.isArray(vdata) && vdata.length > 0) visitaId = vdata[0].id;
         } catch (e) {
-          // ignore
+          
         }
       }
       await fetchRefertiForVisita(visitaId);
@@ -108,7 +101,6 @@ export default function PazienteVisita() {
     doFetch();
   }, [pren, id, fetchRefertiForVisita]);
 
-  // no pagination: nothing to reset when pren changes
 
   if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}><CircularProgress /></Box>;
 
@@ -170,12 +162,10 @@ export default function PazienteVisita() {
                   )
                 )}
 
-                {/* no pagination on this page */}
               </CardContent>
             </Card>
           </Grid>
 
-          {/* Relazione clinica in sola lettura */}
           <Grid item xs={12}>
             <Card>
               <CardContent>
@@ -187,7 +177,6 @@ export default function PazienteVisita() {
                       try {
                         setPrintingRelazione(true);
                         setError('');
-                        // determine visita id
                         let visitaId = pren?.visita_id || null;
                         if (!visitaId) {
                           try {
@@ -195,7 +184,7 @@ export default function PazienteVisita() {
                             const vdata = vres.data;
                             if (Array.isArray(vdata) && vdata.length > 0) visitaId = vdata[0].id;
                           } catch (e) {
-                            // ignore
+                            
                           }
                         }
                         if (!visitaId) throw new Error('Nessuna visita associata per la stampa.');
@@ -204,7 +193,6 @@ export default function PazienteVisita() {
                         const url = window.URL.createObjectURL(blob);
                         const newTab = window.open(url, '_blank');
                         if (!newTab) {
-                          // fallback download
                           const a = document.createElement('a');
                           a.href = url;
                           a.download = `relazione_visita_${visitaId}.pdf`;

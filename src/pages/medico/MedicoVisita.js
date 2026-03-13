@@ -43,7 +43,6 @@ export default function MedicoVisita() {
       const res = await prenotazioniService.get(id);
       const raw = res.data;
       setPren(raw);
-      // se la prenotazione contiene riferimento alla visita, carichiamo la visita
       const visitaId = raw.visita_id;
       if (visitaId) {
         fetchVisita(visitaId);
@@ -82,7 +81,6 @@ export default function MedicoVisita() {
         const res = await pazientiService.getReferti(pazienteId, { page: refertiPage, page_size: refertiPageSize });
         const data = res.data && (res.data.items ? res.data.items : res.data);
         setReferti(Array.isArray(data) ? data : []);
-        // support API returning total count
         const total = res.data.total || 0;
         setRefertiTotal(total || (Array.isArray(data) ? data.length : 0));
       } else {
@@ -100,14 +98,11 @@ export default function MedicoVisita() {
 
   useEffect(() => { fetchReferti(); }, [fetchReferti]);
 
-  // quando cambia la prenotazione resettiamo la pagina dei referti alla prima
   useEffect(() => {
     setRefertiPage(1);
   }, [pren]);
 
   useEffect(() => {
-    // relazione_clinica è un campo della visita; se non abbiamo ancora la visita
-    // la relazione sarà caricata da `fetchVisita` quando disponibile.
     if (!visita) setRelazioneClinica('');
   }, [visita, pren]);
 
@@ -196,7 +191,6 @@ export default function MedicoVisita() {
 
       await visiteService.updateRelazione(visitaId, { relazione_clinica: relazioneClinica });
       setSuccess('Relazione clinica salvata con successo.');
-      // Non eseguiamo refetch; applichiamo aggiornamento locale per mostrare subito la nuova relazione
       setVisita((v) => v ? { ...v, relazione_clinica: relazioneClinica } : v);
       setTimeout(() => setSuccess(''), 3000);
       return true;
@@ -279,14 +273,12 @@ export default function MedicoVisita() {
                     <Box sx={{ overflow: 'auto', flex: 1, mt: 1 }}>
                       <List>
                         {referti.map((r, idx) => (
-                          // prefer API-provided stable referto_id, fallback to other ids, always append idx to ensure uniqueness
                             <RefertoItem key={`${r.referto_id}-${idx}`} referto={r} onError={setError} />
                         ))}
                       </List>
                     </Box>
                   )
                 )}
-                {/* Pagination for referti */}
                 {refertiTotal > refertiPageSize && (
                   <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
                     <Pagination
@@ -316,12 +308,10 @@ export default function MedicoVisita() {
                       {savingRelazione ? <CircularProgress size={18} color="inherit" /> : 'Salva relazione'}
                     </Button>
                     <Button variant="outlined" color="secondary" onClick={async () => {
-                      // salva la relazione e poi apri il PDF nel browser tramite API /visite/{id}/relazione/print
                       try {
                         setPrintingRelazione(true);
                         setError('');
 
-                        // Salviamo la relazione prima di generare il PDF
                         const saved = await saveRelazione();
                         if (!saved) throw new Error('Salvataggio relazione fallito.');
 
@@ -332,10 +322,8 @@ export default function MedicoVisita() {
                         const blob = res.data || res;
                         const url = window.URL.createObjectURL(blob);
 
-                        // apri il PDF in una nuova scheda (browser), non forzare il download
                         const newTab = window.open(url, '_blank');
                         if (!newTab) {
-                          // popup bloccato o fallito: fallback al download
                           const a = document.createElement('a');
                           a.href = url;
                           a.download = `relazione_visita_${visitaId}.pdf`;
@@ -343,7 +331,6 @@ export default function MedicoVisita() {
                           a.click();
                           a.remove();
                         } else {
-                          // revoca l'objectURL dopo qualche secondo per lasciare il tempo al browser di caricare
                           setTimeout(() => window.URL.revokeObjectURL(url), 5000);
                         }
                       } catch (err) {
