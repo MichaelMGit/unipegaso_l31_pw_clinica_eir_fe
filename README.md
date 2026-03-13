@@ -1,4 +1,4 @@
-# Clinica Eir Frontend
+# Clinica Eir - Frontend
 
 Frontend React del progetto **Clinica Eir**, realizzato nell’ambito del **Project Work Unipegaso L-31**.
 
