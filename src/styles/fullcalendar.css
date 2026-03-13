@@ -1,0 +1,99 @@
+/* Minimal FullCalendar dayGrid styles (vendor copy). This contains a compact subset
+   of the official FullCalendar CSS sufficient for the month/dayGrid view and events.
+   It avoids importing package CSS that is not exported by the npm packages. */
+
+/* Root container */
+.fc {
+  --fc-border-color: #ddd;
+  --fc-bg-color: #fff;
+  font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #333;
+}
+
+.fc .fc-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.fc .fc-toolbar-chunk {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.fc .fc-button {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.fc .fc-button:disabled { opacity: 0.6 }
+
+/* Month grid */
+.fc .fc-daygrid {
+  border: 1px solid var(--fc-border-color);
+  background: var(--fc-bg-color);
+}
+.fc .fc-col-header {
+  border-bottom: 1px solid var(--fc-border-color);
+}
+.fc .fc-col-header-cell {
+  padding: 8px 10px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.fc .fc-daygrid-body {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+.fc .fc-daygrid-body tr { display: table-row }
+.fc .fc-daygrid-day {
+  display: table-cell;
+  vertical-align: top;
+  min-height: 90px;
+  padding: 8px;
+  border-right: 1px solid var(--fc-border-color);
+}
+.fc .fc-daygrid-day.fc-day-today { background: rgba(25,118,210,0.04) }
+.fc .fc-daygrid-day-number { font-size: 0.85rem; font-weight: 500; margin-bottom: 6px }
+
+/* Ensure month title and weekday headers start with uppercase */
+.fc .fc-toolbar-title { text-transform: capitalize; }
+.fc .fc-col-header-cell { text-transform: capitalize; }
+
+/* Events */
+.fc .fc-daygrid-event-harness { margin-bottom: 4px }
+.fc .fc-daygrid-event {
+  display: block;
+  padding: 4px 6px;
+  background: #1976d2;
+  color: #fff;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 0.85rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* completed bookings: gray badge */
+.fc .fc-daygrid-event.fc-event-completed {
+  background: #9e9e9e; /* grey 500 */
+  color: #fff;
+  opacity: 0.95;
+}
+.fc .fc-daygrid-event .fc-event-time { margin-right: 6px; opacity: 0.9 }
+
+/* "more" link */
+.fc .fc-daygrid-more-link { color: #1976d2; cursor: pointer; font-size: 0.85rem }
+
+/* responsive */
+@media (max-width: 600px) {
+  .fc .fc-col-header-cell { font-size: 0.8rem }
+  .fc .fc-daygrid-day { min-height: 70px; padding: 6px }
+}

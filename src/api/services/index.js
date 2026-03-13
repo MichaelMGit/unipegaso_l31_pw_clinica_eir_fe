@@ -1,0 +1,11 @@
+export { default as authService } from './auth';
+export { default as pazientiService } from './pazienti';
+export { default as prenotazioniService } from './prenotazioni';
+export { default as mediciService } from './medici';
+export { default as specialitaService } from './specialita';
+export { default as refertiService } from './referti';
+export { default as visiteService } from './visite';
+export { default as healthService } from './health';
+export { default as metricsService } from './metrics';
+export { default as prestazioniService } from './prestazioni';
+export { default as statisticsService } from './statistics';
